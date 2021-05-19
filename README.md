@@ -2,20 +2,10 @@
 
 ## Getting started
 
-install postgress:
+install [docker-compose](https://docs.docker.com/compose/install/)
 
-```
-sudo apt-get install postgresql-12
-```
+run `docker-compose up`
 
-login as postgres user
-```
-sudo -u postgres psql postgres
-```
-```
-CREATE DATABASE accio;
-ALTER USER postgres PASSWORD 'postgres';
-```
 create virtualenv, activate it and install requirements.
 ```
 virtualenv venv
