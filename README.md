@@ -4,7 +4,7 @@
 
 install [docker-compose](https://docs.docker.com/compose/install/)
 
-run `docker-compose up`
+run `docker-compose up -d`
 
 create virtualenv, activate it and install requirements.
 ```
@@ -17,12 +17,12 @@ flask run
 
 for database migration and setup:
 ```
-flask db init
 flask db migrate
 flask db upgrade
 ```
 
-to login to accio db:
+to login to accio db inside the container:
 ```
-sudo -u postgres psql accio
+docker-compose exec db bash
+psql accio -U postgres
 ```
