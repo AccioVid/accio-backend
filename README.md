@@ -51,9 +51,10 @@ flask run
 - api/ - flask api serving the frontend
 - engine/ - module carrying all the logic happening behind the scenes
   - datafeed::DataFeeder
-  - engine::EngineManager
   - keyframes::KeyFrameExtractor
   - plugins::PluginManager
+    - abstracts the interaction with plugins
+  - engine::EngineManager
     - discover video from datafeed
     - for each plugin in plugins list
       - perform keyframes extraction on video (depending on its system configuration)
@@ -61,23 +62,23 @@ flask run
       - output = PluginManager.run(plugin, input_obj)
       - Indexer.index(video, output)
   - indexer::Indexer
-  - reflect output results to video db records
-    - output: (view only)
-      ```json
-      {
-        "src_name": xxx,
-        "results": xxx
-        [
-          {
-            "from": xxx,
-            "to": xxx,
-            "content": xxx,
-            "bb": [],
-            "confidence": xx 
-          }
-        ]
-      }
-      ```
+    - reflect output results to video db records
+      - output: (view only)
+        ```json
+        {
+          "src_name": "xxx",
+          "results": "xxx"
+          [
+            {
+              "from": "xxx",
+              "to": "xxx",
+              "content": "xxx",
+              "bb": [],
+              "confidence": "xx" 
+            }
+          ]
+        }
+        ```
 
 - plugins/ - repository of all implemented plugins
   - each plugin inherits from an AbstractPlugin class, implementing a `run` method and `configurationDict` field
@@ -87,7 +88,7 @@ flask run
 ### Screens
 
 #### Client UI
-A search box that sends the query to /api/search?q=xxxx and renders the results with potential interaction with the videos and their frames
+A search box that sends the query to /api/search?q="xxx"x and renders the results with potential interaction with the videos and their frames
 
 #### Admin UI
 A place to manage plugins and their configuration
