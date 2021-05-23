@@ -9,6 +9,7 @@ import os
 class yoloPlugin:
 	
 	_yoloDir = "./plugins/yolo_object_detection/yolo_coco"
+	_contentType = "object"
 	
 	def run(self, imagePath, configuration):
 		# construct the argument parse and parse the arguments
@@ -115,25 +116,29 @@ class yoloPlugin:
 				# extract the bounding box coordinates
 				(x, y) = (boxes[i][0], boxes[i][1])
 				(w, h) = (boxes[i][2], boxes[i][3])
-				print(boxes[i])
 
 				# draw a bounding box rectangle and label on the image
 				color = [int(c) for c in COLORS[classIDs[i]]]
 				cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
 				text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-				objects.append(text)
+				# objects.append(text)
+				content = LABELS[classIDs[i]]
+				bounding_boxes = boxes[i]
+				output_confidence = round(confidences[i], 3)
+				objects.append({'content-type': self._contentType, 'content': content, 'bb': bounding_boxes, 'confidence': output_confidence})
+				print({'content-type': self._contentType, 'content': content, 'bb': bounding_boxes, 'confidence': output_confidence})
 				positions.append([x,y])
 				cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
 					0.5, color, 2)
 
-		print(objects)
+		return objects
+		# print(objects)
 		# print(positions)
 		# print(boxes)
 		# show the output image
-		cv2.imshow("Image", image)
-		# cv2.imwrite("demo_image.png",image)
-		cv2.waitKey(0)
-
+		# cv2.imshow("Image", image)
+		# # cv2.imwrite("demo_image.png",image)
+		# cv2.waitKey(0)
 
 yp = yoloPlugin()
 
