@@ -6,6 +6,25 @@ import glob
 from PIL import Image
 import peakutils
 
+class KeyFramesType:
+    '''
+        # frame_dict
+        "source_url: "path/to/source,
+        "frames": 
+        [
+            {
+                "index": 0,
+                "at": xx,
+                "path": "path/to/frame"
+            }
+        ]
+        '''
+    def __init__(self, source_url):
+        self.source_url = source_url
+        self.frames_list = []
+    
+    def add_frame(self, frame_dict):
+        self.frames_list.append(frame_dict)
 class KeyFrameExtractor:
     
     def light_significant_change_detect(self, source, dest, thres, verbose=False):
@@ -18,30 +37,44 @@ class KeyFrameExtractor:
         if (cap.isOpened()== False):
             print("Error opening video file")
 
+        fps = self.__get_frames_per_seconds(cap)
+        interval_end = 0
+
         lastFrame = None
-        start_time = time.process_time()
         cnt = 1
+
+        key_frames_obj = KeyFramesType(source)
+
         for i in range(length):
             ret, frame = cap.read()
             grayframe, blur_gray = self.__convert_frame_to_grayscale(frame)
             if lastFrame is not None:
                 diff = cv2.subtract(blur_gray, lastFrame)
                 diffMag = cv2.countNonZero(diff)
-                end_time = time.process_time()
-                time_span = end_time - start_time
+                
+                
 
                 height, width = blur_gray.shape
                 resolution = height * width
                 if diffMag / resolution > thres:
-                    cv2.imwrite(os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg'), frame)
-                    log_message = 'keyframe ' + str(cnt) + ' happened at ' + str(time_span) + ' sec.'
+                    interval_end = i/fps
+                    path = os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg')
+                    cv2.imwrite(path, frame)
+                    frame_dict = {
+                        'index': cnt,
+                        'path': path,
+                        'at': interval_end
+                    }
+                    
+                    key_frames_obj.add_frame(frame_dict)
                     if(verbose):
-                        print(log_message)
-                    cnt +=1
+                        print(frame_dict)
+                    cnt += 1
             lastFrame = blur_gray
 
         cap.release()
         cv2.destroyAllWindows()
+        return key_frames_obj
 
     def significant_change_detect(self, source, dest, Thres, verbose=False):
         keyframePath = dest+'/keyframes'
@@ -49,9 +82,13 @@ class KeyFrameExtractor:
 
         cap = cv2.VideoCapture(source)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    
+
         if (cap.isOpened()== False):
             print("Error opening video file")
+
+        fps = self.__get_frames_per_seconds(cap)
+        interval_end = 0
+        key_frames_obj = KeyFramesType(source)
 
         lstfrm = []
         lstdiffMag = []
@@ -67,7 +104,7 @@ class KeyFrameExtractor:
             grayframe, blur_gray = self.__convert_frame_to_grayscale(frame)
 
             frame_number = cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
-            lstfrm.append(frame_number)
+            lstfrm.append(i)
             images.append(grayframe)
             full_color.append(frame)
             if frame_number == 0:
@@ -88,13 +125,25 @@ class KeyFrameExtractor:
         
         cnt = 1
         for x in indices:
-            cv2.imwrite(os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg'), full_color[x])
-            cnt +=1
-            log_message = 'keyframe ' + str(cnt) + ' happened at ' + str(timeSpans[x]) + ' sec.'
+            frame_path = os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg') 
+            cv2.imwrite(frame_path, full_color[x])
+            interval_end = lstfrm[x]/fps
+            frame_dict = {
+                'index': cnt,
+                'path': frame_path,
+                'at': interval_end
+            }
+            key_frames_obj.add_frame(frame_dict)
+            cnt += 1
             if(verbose):
-                print(log_message)
+                print(frame_dict)
 
         cv2.destroyAllWindows()
+        return key_frames_obj
+    
+    def __get_frames_per_seconds(self, cap):
+        fps = round(cap.get(cv2.CAP_PROP_FPS))
+        return fps
 
     def __scale(self, img, xScale, yScale):
         res = cv2.resize(img, None, fx=xScale, fy=yScale, interpolation=cv2.INTER_AREA)
@@ -143,5 +192,3 @@ class KeyFrameExtractor:
         files = glob.glob(keyframePath + "/*")
         for f in files:
             os.remove(f)
-
-
