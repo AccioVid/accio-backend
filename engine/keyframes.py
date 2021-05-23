@@ -43,7 +43,7 @@ class KeyFrameExtractor:
         cap.release()
         cv2.destroyAllWindows()
 
-    def signigicant_change_detect(self, source, dest, Thres, verbose=False):
+    def significant_change_detect(self, source, dest, Thres, verbose=False):
         keyframePath = dest+'/keyframes'
         self.__prepare_dirs(keyframePath)
 
