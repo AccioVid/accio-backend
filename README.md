@@ -41,9 +41,10 @@ plugins/yolo_object_detection/yolo_coco
 ### Tables
 - Videos
   - id
-  - title
-  - metadata
+  - name
+  - results
   - path/url
+  - processed
 - Plugins
   - id
   - name
