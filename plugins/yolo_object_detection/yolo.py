@@ -1,17 +1,21 @@
 # USAGE
 # python yolo.py --image images/baggage_claim.jpg --yolo yolo-coco
 
+from ..base import AbstractPlugin
 import numpy as np
 import time
 import cv2
 import os
 
-class yoloPlugin:
-	
+class yoloPlugin(AbstractPlugin):
+
 	_yoloDir = "./plugins/yolo_object_detection/yolo_coco"
 	_contentType = "object"
+
+	def __init__(self, system_config) -> None:
+    		super().__init__(system_config)
 	
-	def run(self, imagePath, configuration):
+	def run(self, imagePath, run_config):
 		# construct the argument parse and parse the arguments
 		# ap = argparse.ArgumentParser()
 		# ap.add_argument("-i", "--image", required=True,
@@ -83,7 +87,7 @@ class yoloPlugin:
 
 				# filter out weak predictions by ensuring the detected
 				# probability is greater than the minimum probability
-				if confidence > configuration["confidence"]:
+				if confidence > run_config["confidence"]:
 					# scale the bounding box coordinates back relative to the
 					# size of the image, keeping in mind that YOLO actually
 					# returns the center (x, y)-coordinates of the bounding
@@ -104,8 +108,8 @@ class yoloPlugin:
 
 		# apply non-maxima suppression to suppress weak, overlapping bounding
 		# boxes
-		idxs = cv2.dnn.NMSBoxes(boxes, confidences, configuration["confidence"],
-			configuration["threshold"])
+		idxs = cv2.dnn.NMSBoxes(boxes, confidences, run_config["confidence"],
+			run_config["threshold"])
 
 		objects = []
 		positions = []
@@ -139,13 +143,3 @@ class yoloPlugin:
 		# cv2.imshow("Image", image)
 		# # cv2.imwrite("demo_image.png",image)
 		# cv2.waitKey(0)
-
-yp = yoloPlugin()
-
-_configuration = {
-		"confidence" : 0.5,
-		"threshold" : 0.3
-}
-
-imagePathVar = "baggage_claim.jpg"
-yp.run("./plugins/yolo_object_detection/images/" + imagePathVar, _configuration)

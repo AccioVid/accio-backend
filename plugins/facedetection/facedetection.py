@@ -1,6 +1,6 @@
 from glob import glob
 import pickle
-from plugins.base import AbstractPlugin
+from ..base import AbstractPlugin
 import cv2
 import imutils
 import face_recognition
