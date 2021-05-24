@@ -15,6 +15,11 @@ class yoloPlugin(AbstractPlugin):
 	def __init__(self, system_config) -> None:
     		super().__init__(system_config)
 	
+	'''
+		run_config:
+		- confidence : default (0.5),
+		- threshold : default (0.3)
+	'''
 	def run(self, imagePath, run_config):
 		# construct the argument parse and parse the arguments
 		# ap = argparse.ArgumentParser()
