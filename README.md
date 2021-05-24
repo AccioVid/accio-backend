@@ -31,6 +31,11 @@ run the server
 flask run
 ```
 
+To run yolo object detection you have to donwload the [yolov3.weights](https://pjreddie.com/media/files/yolov3.weights)
+Then add yolov3.weights in
+```
+plugins/yolo_object_detection/yolo_coco
+```
 ## Implementation Details
 
 ### Tables
