@@ -99,3 +99,24 @@ A search box that sends the query to /api/search?q="xxx"x and renders the result
 #### Admin UI
 A place to manage plugins and their configuration
 
+
+## subsystems
+### plugins integrator
+import paths:
+- plugins.facedetection.facedetection.FaceDetectionPlugin
+- plugins.yolo_object_detection.yolo.YoloPlugin
+
+run
+```
+- python engine/plugins_integrator.py --name <plugin name> --executable_path <import path>
+```
+
+### data feeder example
+run
+```
+python engine/datafeeder.py --sleeptime <time in secs> --repository <relative path>
+```
+
+
+## Peresentation
+- Talk about input type (scene, raw video, keyframes [x])

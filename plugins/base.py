@@ -1,10 +1,10 @@
 #  TODO reflect this class on the database
 class AbstractPlugin():
-  def __init__(self, system_config):
-    self.system_config = system_config
+  def __init__(self, plugin_config):
+    self.plugin_config = plugin_config
     pass
 
-  def run(self, input_path, run_config):
+  def run(self, input_path):
     pass
   # end def
 # end class

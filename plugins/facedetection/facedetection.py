@@ -1,3 +1,5 @@
+__all__ = ['FaceDetectionPlugin']
+
 from glob import glob
 import pickle
 from ..base import AbstractPlugin
@@ -8,16 +10,16 @@ import face_recognition
 class FaceDetectionPlugin(AbstractPlugin):
 
   '''
-    system_config:
-      - encodings_path: './the-office.pkl'
+    plugin_config:
+      - encodings_path: 'plugins/facedetection/the_office.pkl'
   '''
 
-  def __init__(self, system_config) -> None:
-      super().__init__(system_config)
-      self.encodings = pickle.loads(open(self.system_config.get('encodings_path'), "rb").read())
+  def __init__(self, plugin_config) -> None:
+      super().__init__(plugin_config)
+      self.encodings = pickle.loads(open(self.plugin_config.get('encodings_path'), "rb").read())
       
 
-  def run(self, input_path, run_config):
+  def run(self, input_path):
     input_frame = glob(input_path)
     cvframe = cv2.imread(input_frame)
     rgb = cv2.cvtColor(cvframe, cv2.COLOR_BGR2RGB)

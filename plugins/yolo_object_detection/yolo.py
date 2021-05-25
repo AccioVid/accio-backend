@@ -1,3 +1,6 @@
+__all__ = ['YoloPlugin']
+
+
 # USAGE
 # python yolo.py --image images/baggage_claim.jpg --yolo yolo-coco
 
@@ -7,20 +10,20 @@ import time
 import cv2
 import os
 
-class yoloPlugin(AbstractPlugin):
+class YoloPlugin(AbstractPlugin):
 
 	_yoloDir = "./plugins/yolo_object_detection/yolo_coco"
 	_contentType = "object"
 
-	def __init__(self, system_config) -> None:
-    		super().__init__(system_config)
-	
+	def __init__(self, plugin_config) -> None:
+		super().__init__(plugin_config)
+
 	'''
-		run_config:
+		plugin_config:
 		- confidence : default (0.5),
 		- threshold : default (0.3)
 	'''
-	def run(self, imagePath, run_config):
+	def run(self, input_path):
 		# construct the argument parse and parse the arguments
 		# ap = argparse.ArgumentParser()
 		# ap.add_argument("-i", "--image", required=True,
@@ -54,7 +57,7 @@ class yoloPlugin(AbstractPlugin):
 		net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 		# load our input image and grab its spatial dimensions
-		image = cv2.imread(imagePath)
+		image = cv2.imread(input_path)
 		(H, W) = image.shape[:2]
 
 		# determine only the *output* layer names that we need from YOLO
@@ -92,7 +95,7 @@ class yoloPlugin(AbstractPlugin):
 
 				# filter out weak predictions by ensuring the detected
 				# probability is greater than the minimum probability
-				if confidence > run_config["confidence"]:
+				if confidence > self.plugin_config["confidence"]:
 					# scale the bounding box coordinates back relative to the
 					# size of the image, keeping in mind that YOLO actually
 					# returns the center (x, y)-coordinates of the bounding
@@ -113,8 +116,8 @@ class yoloPlugin(AbstractPlugin):
 
 		# apply non-maxima suppression to suppress weak, overlapping bounding
 		# boxes
-		idxs = cv2.dnn.NMSBoxes(boxes, confidences, run_config["confidence"],
-			run_config["threshold"])
+		idxs = cv2.dnn.NMSBoxes(boxes, confidences, self.plugin_config["confidence"],
+			self.plugin_config["threshold"])
 
 		objects = []
 		positions = []

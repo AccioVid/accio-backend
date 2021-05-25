@@ -1,9 +1,9 @@
 from plugins.facedetection import FaceDetectionPlugin
-from plugins.yolo_object_detection.yolo import yoloPlugin
+from plugins.yolo_object_detection.yolo import YoloPlugin
 
 
 sys_config = "asd"
-yp = yoloPlugin(sys_config)
+yp = YoloPlugin(sys_config)
 
 _configuration = {
 		"confidence" : 0.5,

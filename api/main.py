@@ -16,10 +16,13 @@ class DBModel:
 
     def save(self):
         db.session.add(self)
-        db.session.commit()
+        self.persist()
 
     def delete(self):
         db.session.delete(self)
+        self.persist()
+    
+    def persist(self):
         db.session.commit()
 
 

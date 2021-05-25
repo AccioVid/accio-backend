@@ -1,6 +1,7 @@
 import sys
 sys.path.append('./')
 
+import argparse
 import time
 import glob
 import os
@@ -40,15 +41,24 @@ v = VideosModel("test", 50, "url", results={"key": "value", "test": {"key2": "va
 """
 
 if __name__ == '__main__':
-    # python python engine/datafeeder.py ./repository
-    repository_path = sys.argv[1] if len(sys.argv) > 1 else './repository'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository", help="Videos repository path")
+    parser.add_argument("--sleeptime", help="Cronjob interval")
+    args = parser.parse_args()
+
+    repository_path = args.repository if args.repository else './repository'
     df = DataFeeder(repository_path)
-    while True:
-        print("DataFeeder started execution")
-        df.run()
-        for remaining in range(60, -1, -1):
-            sys.stdout.write("\r")
-            sys.stdout.write("{:2d} seconds remaining.".format(remaining))
-            sys.stdout.flush()
-            time.sleep(1)
-        print("")
+
+    try:
+        while True:
+            print("DataFeeder started execution")
+            df.run()
+            for remaining in range(int(args.sleeptime) if args.sleeptime else 60, -1, -1):
+                sys.stdout.write("\r")
+                sys.stdout.write("{:2d} seconds remaining.".format(remaining))
+                sys.stdout.flush()
+                time.sleep(1)
+            print("")
+    except KeyboardInterrupt:
+        print("\n===========\nFeeder closed\nBye!")
+        sys.exit()
