@@ -1,2 +1,6 @@
 __pycache__
 venv
+plugins/yolo_object_detection/images
+plugins/yolo_object_detection/videos
+plugins/yolo_object_detection/yolo_coco/yolov3.weights
+plugins/yolo_object_detection/output
