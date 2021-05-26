@@ -28,7 +28,7 @@ class KeyFramesType:
 class KeyFrameExtractor:
     
     def light_significant_change_detect(self, source, dest, thres, verbose=False):
-        keyframePath = dest+'/keyframes'
+        keyframePath = dest
         self.__prepare_dirs(keyframePath)
 
         cap = cv2.VideoCapture(source)
@@ -77,7 +77,7 @@ class KeyFrameExtractor:
         return key_frames_obj
 
     def significant_change_detect(self, source, dest, Thres, verbose=False):
-        keyframePath = dest+'/keyframes'
+        keyframePath = dest
         self.__prepare_dirs(keyframePath)
 
         cap = cv2.VideoCapture(source)

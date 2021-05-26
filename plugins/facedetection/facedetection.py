@@ -20,8 +20,8 @@ class FaceDetectionPlugin(AbstractPlugin):
       
 
   def run(self, input_path):
-    input_frame = glob(input_path)
-    cvframe = cv2.imread(input_frame)
+    # input_frame = glob(input_path)
+    cvframe = cv2.imread(input_path)
     rgb = cv2.cvtColor(cvframe, cv2.COLOR_BGR2RGB)
     rgb = imutils.resize(rgb, width=750)
     boxes = face_recognition.face_locations(rgb, model='hog')
@@ -43,8 +43,8 @@ class FaceDetectionPlugin(AbstractPlugin):
         most_likely = max(scores, key=scores.get)
         total = sum(score for score in scores.values())
         if most_likely:
-          confidence = 0 if total == 0 else round(most_likely/total, 3)
-          detections.append({'content-type': 'face', 'content': {most_likely}, 'bb': boxes[i], 'confidence': confidence})
+          confidence = 0 if total == 0 else round(scores[most_likely]/total, 3)
+          detections.append({'content-type': 'face', 'content': most_likely, 'bb': boxes[i], 'confidence': confidence})
         #end if
       #end if
       return detections
