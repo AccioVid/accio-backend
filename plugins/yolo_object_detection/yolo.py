@@ -17,6 +17,13 @@ class YoloPlugin(AbstractPlugin):
 
 	def __init__(self, plugin_config) -> None:
 		super().__init__(plugin_config)
+				# derive the paths to the YOLO weights and model configuration
+		weightsPath = os.path.sep.join([self._yoloDir, "yolov3.weights"])
+		configPath = os.path.sep.join([self._yoloDir, "yolov3.cfg"])
+
+		# load our YOLO object detector trained on COCO dataset (80 classes)
+		print("[INFO] loading YOLO from disk...")
+		self.net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 	'''
 		plugin_config:
@@ -24,21 +31,6 @@ class YoloPlugin(AbstractPlugin):
 		- threshold : default (0.3)
 	'''
 	def run(self, input_path):
-		# construct the argument parse and parse the arguments
-		# ap = argparse.ArgumentParser()
-		# ap.add_argument("-i", "--image", required=True,
-		# 	help="path to input image")
-		# ap.add_argument("-y", "--yolo", required=True,
-		# 	help="base path to YOLO directory")
-		# ap.add_argument("-c", "--confidence", type=float, default=0.5,
-		# 	help="minimum probability to filter weak detections")
-		# ap.add_argument("-t", "--threshold", type=float, default=0.3,
-		# 	help="threshold when applyong non-maxima suppression")
-		# args = vars(ap.parse_args())
-
-		# load the COCO class labels our YOLO model was trained on
-		# labelsPath = os.path.join(self._yoloDir, "coco.names")
-		# labelsPath = os.path.sep.join([self._yoloDir, "coco.names"])
 		labelsPath = os.path.join(self._yoloDir, 'coco.names')
 		print(labelsPath)
 		LABELS = open(labelsPath).read().strip().split("\n")
@@ -48,30 +40,22 @@ class YoloPlugin(AbstractPlugin):
 		COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 			dtype="uint8")
 
-		# derive the paths to the YOLO weights and model configuration
-		weightsPath = os.path.sep.join([self._yoloDir, "yolov3.weights"])
-		configPath = os.path.sep.join([self._yoloDir, "yolov3.cfg"])
-
-		# load our YOLO object detector trained on COCO dataset (80 classes)
-		print("[INFO] loading YOLO from disk...")
-		net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
-
 		# load our input image and grab its spatial dimensions
 		image = cv2.imread(input_path)
 		(H, W) = image.shape[:2]
 
 		# determine only the *output* layer names that we need from YOLO
-		ln = net.getLayerNames()
-		ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+		ln = self.net.getLayerNames()
+		ln = [ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
 
 		# construct a blob from the input image and then perform a forward
 		# pass of the YOLO object detector, giving us our bounding boxes and
 		# associated probabilities
 		blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
 			swapRB=True, crop=False)
-		net.setInput(blob)
+		self.net.setInput(blob)
 		start = time.time()
-		layerOutputs = net.forward(ln)
+		layerOutputs = self.net.forward(ln)
 		end = time.time()
 
 		# show timing information on YOLO

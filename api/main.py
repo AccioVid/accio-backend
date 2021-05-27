@@ -1,3 +1,4 @@
+import json
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -54,20 +55,45 @@ class VideosModel(DBModel, db.Model):
         self.results = results
         self.processed = processed
 
+    def to_json(self):
+        return {
+            "name": self.name,
+            "duration": self.duration,
+            "url": self.url,
+            "results": self.results,
+            "processed": self.processed,
+        }
+
 # apis
 @app.route('/')
 def hello():
     return "Hello World, I'm Accio!"
 
-@app.route('/search')
-# localhost:5000/search?query=hamada
+@app.route('/search', methods=['POST'])
 def query():
-    keyword = request.args.get('query')
+    keywords = request.get_json('query')['query'].split(' ')
+    videos = set([])
+    for keyword in keywords:
+        results = VideosModel.query.filter(VideosModel.results.contains(keyword))
+        for r in results:
+            videos.add(r)
+    
+    videos = list(videos)
+    for v in videos:
+        new_results = []
+        old_results = json.loads(v.results)
+        for frame_results in old_results:
+            for result in frame_results['results']:
+                if result['content'] in keywords:
+                    new_results.append(frame_results)
+                    break
+        v.results = new_results
+    
     return {
-        "keyword": keyword
+        "response": [v.to_json() for v in videos]
     }
-    # results = VideosModel.objects.filter(reults=match(keyword))
-    # return results
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
