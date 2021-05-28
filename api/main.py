@@ -37,6 +37,15 @@ class PluginsModel(DBModel, db.Model):
     system_configuration = db.Column(JSON)
     plugin_configuration = db.Column(JSON)
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "is_enabled": self.is_enabled,
+            "executable_path": self.executable_path,
+            "system_configuration": self.system_configuration,
+            "plugin_configuration": self.plugin_configuration,
+        }
 
 class VideosModel(DBModel, db.Model):
     __tablename__ = 'videos'
@@ -69,8 +78,32 @@ class VideosModel(DBModel, db.Model):
 def hello():
     return "Hello World, I'm Accio!"
 
+@app.route('/plugins', methods=['GET'])
+def get_plugins():
+    plugins = PluginsModel.query.all()
+    return {
+        "response": [p.to_json() for p in plugins]
+    }
+#end def
+
+@app.route('/plugins', methods=['POST'])
+def edit_plugin():
+    data = request.get_json('query')
+    id = data['id']
+    plugin = PluginsModel.query.get(id)
+    for key, value in data.items():
+        if key != 'id' and hasattr(plugin, key):
+            setattr(plugin, key, value)
+    plugin.save()
+    return {
+        "response": plugin.to_json()
+    }
+#end def
+
+
+
 @app.route('/search', methods=['POST'])
-def query():
+def videos_search():
     keywords = request.get_json('query')['query'].split(' ')
     videos = set([])
     for keyword in keywords:
@@ -84,15 +117,20 @@ def query():
         old_results = json.loads(v.results)
         for frame_results in old_results:
             for result in frame_results['results']:
-                if result['content'] in keywords:
-                    new_results.append(frame_results)
+                done = False
+                for keyword in keywords:
+                    if keyword in result['content']:
+                        new_results.append(frame_results)
+                        done = True
+                        break
+                if done:
                     break
         v.results = new_results
-    
+
     return {
         "response": [v.to_json() for v in videos]
     }
-
+#end def
 
 if __name__ == '__main__':
     app.run(debug=True)
