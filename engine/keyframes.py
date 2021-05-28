@@ -92,11 +92,9 @@ class KeyFrameExtractor:
 
         lstfrm = []
         lstdiffMag = []
-        timeSpans = []
-        images = []
         full_color = []
         lastFrame = None
-        Start_time = time.process_time()
+        cnt = 1
         
         # Read until video is completed
         for i in range(length):
@@ -105,7 +103,6 @@ class KeyFrameExtractor:
 
             frame_number = cap.get(cv2.CAP_PROP_POS_FRAMES) - 1
             lstfrm.append(i)
-            images.append(grayframe)
             full_color.append(frame)
             if frame_number == 0:
                 lastFrame = blur_gray
@@ -113,31 +110,32 @@ class KeyFrameExtractor:
             diff = cv2.subtract(blur_gray, lastFrame)
             diffMag = cv2.countNonZero(diff)
             lstdiffMag.append(diffMag)
-            stop_time = time.process_time()
-            time_Span = stop_time-Start_time
-            timeSpans.append(time_Span)
             lastFrame = blur_gray
 
-        cap.release()
-        y = np.array(lstdiffMag)
-        base = peakutils.baseline(y, 2)
-        indices = peakutils.indexes(y-base, Thres, min_dist=1)
-        
-        cnt = 1
-        for x in indices:
-            frame_path = os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg') 
-            cv2.imwrite(frame_path, full_color[x])
-            interval_end = lstfrm[x]/fps
-            frame_dict = {
-                'index': cnt,
-                'path': frame_path,
-                'at': interval_end
-            }
-            key_frames_obj.add_frame(frame_dict)
-            cnt += 1
-            if(verbose):
-                print(frame_dict)
+            if (i == length-1) or (i % 1000 == 0 and i):
+                y = np.array(lstdiffMag)
+                base = peakutils.baseline(y, 2)
+                indices = peakutils.indexes(y-base, Thres, min_dist=1)
+                
+                for x in indices:
+                    frame_path = os.path.join(keyframePath , 'keyframe'+ str(cnt) +'.jpg') 
+                    cv2.imwrite(frame_path, full_color[x])
+                    interval_end = lstfrm[x]/fps
+                    frame_dict = {
+                        'index': cnt,
+                        'path': frame_path,
+                        'at': interval_end
+                    }
+                    key_frames_obj.add_frame(frame_dict)
+                    cnt += 1
+                    if(verbose):
+                        print(frame_dict)
+                    
+                lstfrm = []
+                lstdiffMag = []
+                full_color = []
 
+        cap.release()
         cv2.destroyAllWindows()
         return key_frames_obj
     

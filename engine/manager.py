@@ -58,7 +58,6 @@ if __name__ == '__main__':
     try:
         while True:
             engine.run(args.limit if args.limit else 2)
-            import ipdb; ipdb.set_trace()
             for remaining in range(int(args.sleeptime) if args.sleeptime else 60, -1, -1):
                 sys.stdout.write("\r")
                 sys.stdout.write("{:2d} seconds remaining.".format(remaining))
