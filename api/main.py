@@ -6,10 +6,14 @@ from sqlalchemy.dialects.postgresql import JSON
 import warnings 
 warnings.filterwarnings(action='ignore')
 
+from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:postgres@localhost:5432/accio"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+cors = CORS(app)
+# app.config['CORS_HEADERS'] = 'application/json'
+# app.config['Access-Control-Allow-Origin'] = '*'
 
 class DBModel:
     def __repr__(self):
@@ -75,10 +79,12 @@ class VideosModel(DBModel, db.Model):
 
 # apis
 @app.route('/')
+@cross_origin()
 def hello():
     return "Hello World, I'm Accio!"
 
 @app.route('/plugins', methods=['GET'])
+@cross_origin()
 def get_plugins():
     plugins = PluginsModel.query.all()
     return {
@@ -87,6 +93,7 @@ def get_plugins():
 #end def
 
 @app.route('/plugins', methods=['POST'])
+@cross_origin()
 def edit_plugin():
     data = request.get_json('query')
     id = data['id']
@@ -103,6 +110,7 @@ def edit_plugin():
 
 
 @app.route('/search', methods=['POST'])
+@cross_origin()
 def videos_search():
     keywords = request.get_json('query')['query'].split(' ')
     videos = set([])
@@ -126,7 +134,6 @@ def videos_search():
                 if done:
                     break
         v.results = new_results
-
     return {
         "response": [v.to_json() for v in videos]
     }
