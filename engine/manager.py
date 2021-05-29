@@ -20,7 +20,7 @@ class EngineManager:
     def run(self, limit):
         keyframe_extractor = KeyFrameExtractor()
         videos = VideosModel.query.filter_by(processed=False).limit(limit)
-        plugins_records = PluginsModel.query.filter_by(is_enabled=True)
+        plugins_records = PluginsModel.query.all()
         videos_results = {}
         for plugin_record in plugins_records:
             print(f'plugin {plugin_record} running')

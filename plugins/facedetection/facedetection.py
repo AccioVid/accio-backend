@@ -43,7 +43,7 @@ class FaceDetectionPlugin(AbstractPlugin):
         most_likely = max(scores, key=scores.get)
         if most_likely:
           confidence = round(scores[most_likely], 3)
-          detections.append({'content-type': 'face', 'content': most_likely, 'bb': boxes[i], 'confidence': confidence})
+          detections.append({'content-type': 'face_recognition', 'content': most_likely, 'bb': boxes[i], 'confidence': confidence})
         #end if
       #end if
       return detections

@@ -127,7 +127,9 @@ def videos_search():
             for result in frame_results['results']:
                 done = False
                 for keyword in keywords:
-                    if keyword in result['content']:
+                    is_enabled = PluginsModel.query.filter_by(name=result['content-type'], is_enabled=True).count()
+                    
+                    if keyword in result['content'] and is_enabled > 0:
                         new_results.append(frame_results)
                         done = True
                         break

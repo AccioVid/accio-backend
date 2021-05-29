@@ -13,7 +13,7 @@ import os
 class YoloPlugin(AbstractPlugin):
 
 	_yoloDir = "./plugins/yolo_object_detection/yolo_coco"
-	_contentType = "object"
+	_contentType = "yolo"
 
 	def __init__(self, plugin_config) -> None:
 		super().__init__(plugin_config)
