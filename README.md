@@ -1,5 +1,8 @@
 # ACCIO
 
+## System Architecture
+![plot](./arch.png)
+
 ## Getting started
 
 install [docker-compose](https://docs.docker.com/compose/install/)
