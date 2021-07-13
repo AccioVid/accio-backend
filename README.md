@@ -108,15 +108,24 @@ import paths:
 
 run
 ```
-- python engine/plugins_integrator.py --name <plugin name> --executable_path <import path>
+python engine/plugins_integrator.py --name <plugin name> --executable_path <import path>
+
+python engine/plugins_integrator.py --name face_recognition --executable_path plugins.facedetection.facedetection.FaceDetectionPlugin
+python engine/plugins_integrator.py --name yolo --executable_path plugins.yolo_object_detection.yolo.YoloPlugin               
 ```
 
 ### data feeder example
 run
 ```
 python engine/datafeeder.py --sleeptime <time in secs> --repository <relative path>
+
+python engine/datafeeder.py --sleeptime 20 --repository ./repository
 ```
 
 
 ## Peresentation
 - Talk about input type (scene, raw video, keyframes [x])
+
+
+### objects
+Chair, Car, Person, Jim, Stanley

@@ -36,15 +36,14 @@ class FaceDetectionPlugin(AbstractPlugin):
         matches = face_recognition.compare_faces(ref_encodings, encoding)
         hits = sum(1 for m in matches if m == True)
         if hits > 0:
-          scores[label] = hits
+          scores[label] = hits / len(matches)
         #end if
       #end for
       if scores:
         most_likely = max(scores, key=scores.get)
-        total = sum(score for score in scores.values())
         if most_likely:
-          confidence = 0 if total == 0 else round(scores[most_likely]/total, 3)
-          detections.append({'content-type': 'face', 'content': most_likely, 'bb': boxes[i], 'confidence': confidence})
+          confidence = round(scores[most_likely], 3)
+          detections.append({'content-type': 'face_recognition', 'content': most_likely, 'bb': boxes[i], 'confidence': confidence})
         #end if
       #end if
       return detections

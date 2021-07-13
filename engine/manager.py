@@ -1,18 +1,8 @@
-"""
-- query one unprocessed video
-- multiple plugins
-    - query enabled from db
-    - load from executable_path
-    - extract keyframes
-        - consider threshold
-    - 
-- update video to be processed (not scalable)
-"""
-
+import argparse
 import sys
+import time
 sys.path.append('./')
 
-import glob
 from engine.keyframes import KeyFrameExtractor
 from api import VideosModel, PluginsModel
 
@@ -27,11 +17,10 @@ class EngineManager:
             mod = getattr(mod, comp)
         return mod
 
-    def run(self):
+    def run(self, limit):
         keyframe_extractor = KeyFrameExtractor()
-        videos = VideosModel.query.filter_by(processed=False)
-        plugins_records = PluginsModel.query.filter_by(is_enabled=True)
-        # plugins = [self._import(p.executable_path)(p.plugin_configuration) for p in plugins_records]
+        videos = VideosModel.query.filter_by(processed=False).limit(limit)
+        plugins_records = PluginsModel.query.all()
         videos_results = {}
         for plugin_record in plugins_records:
             print(f'plugin {plugin_record} running')
@@ -54,17 +43,28 @@ class EngineManager:
                 videos_results[video] = videos_results.get(video, []) + results
         
         for video, results in videos_results.items():
-            import ipdb; ipdb.set_trace()
             video.processed = True
             video.results = list(results)
             video.save()
 
-            
-        
 
-obj = EngineManager()
-obj.run()
-videos = VideosModel.query.filter_by(processed=True)
-# klass = obj._import('plugins.yolo_object_detection.yolo.YoloPlugin')
-# plugins[1].plugin_configuration = {"confidence" : 0.5, "threshold" : 0.3}
-# plugins[0].plugin_configuration = {'encodings_path': 'plugins/facedetection/the_office.pkl'}
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", help="Number of videos to be processed at a time")
+    parser.add_argument("--sleeptime", help="Cronjob interval")
+    args = parser.parse_args()
+    engine = EngineManager()
+
+    try:
+        while True:
+            engine.run(args.limit if args.limit else 2)
+            for remaining in range(int(args.sleeptime) if args.sleeptime else 60, -1, -1):
+                sys.stdout.write("\r")
+                sys.stdout.write("{:2d} seconds remaining.".format(remaining))
+                sys.stdout.flush()
+                time.sleep(1)
+            print("")
+    except KeyboardInterrupt:
+        print("\n===========\nEngine terminated.\nBye!")
+        sys.exit()
+

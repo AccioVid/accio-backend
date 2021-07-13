@@ -15,10 +15,13 @@ new_plugin.executable_path = args.executable_path
 new_plugin.is_enabled = True
 new_plugin.system_configuration = {
     "keyframes_enabled": True,
-    "keyframes_threshold": 0.5
+    "keyframes_threshold": 0.7
 }
 new_plugin.plugin_configuration = {
-    "plugin_name": args.name
+    "plugin_name": args.name,
+    "confidence": 0.5,
+    "threshold": 0.3,
+    "encodings_path": "plugins/facedetection/the_office.pkl"
 }
 
 new_plugin.save()
